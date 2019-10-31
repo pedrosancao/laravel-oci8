@@ -426,7 +426,8 @@ class Oci8SchemaGrammarTest extends TestCase
         $statements = $blueprint->toSql($this->getConnection(), $this->getGrammar());
 
         $this->assertEquals(1, count($statements));
-        $this->assertEquals('alter table users add constraint users_reset_password_secret_co primary key (reset_password_secret_code)',
+        $this->assertEquals(
+            'alter table users add constraint user_rese_passwor_secre_cod_pk primary key (reset_password_secret_code)',
             $statements[0]);
     }
 
@@ -842,5 +843,23 @@ class Oci8SchemaGrammarTest extends TestCase
 
         $this->assertEquals(1, count($statements));
         $this->assertEquals('alter table users add ( foo blob not null )', $statements[0]);
+    }
+
+    public function testDropAllTables()
+    {
+        $statement = $this->getGrammar()->compileDropAllTables();
+
+        $expected = 'BEGIN
+            FOR c IN (SELECT table_name FROM user_tables) LOOP
+            EXECUTE IMMEDIATE (\'DROP TABLE "\' || c.table_name || \'" CASCADE CONSTRAINTS\');
+            END LOOP;
+
+            FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
+            EXECUTE IMMEDIATE (\'DROP SEQUENCE \' || s.sequence_name);
+            END LOOP;
+
+            END;';
+
+        $this->assertEquals($expected, $statement);
     }
 }

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [v5.5.10] - 2019-10-31
+
+- Merge [#461], limit 1 issue.
+
 ## [v5.5.9] - 2018-04-17
 
 - Fix [#413], binding issue. 
@@ -68,6 +72,7 @@
 [v5.5.1]: https://github.com/yajra/laravel-oci8/compare/v5.5.0...v5.5.1
 [v5.5.0]: https://github.com/yajra/laravel-oci8/compare/v5.4.18...v5.5.0
 
+[#461]: https://github.com/yajra/laravel-oci8/pull/461
 [#413]: https://github.com/yajra/laravel-oci8/issues/413
 
 [#409]: https://github.com/yajra/laravel-oci8/pull/409

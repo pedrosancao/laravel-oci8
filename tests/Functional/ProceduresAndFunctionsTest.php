@@ -2,7 +2,6 @@
 
 use Yajra\Oci8\Oci8Connection;
 use PHPUnit\Framework\TestCase;
-use Illuminate\Database\Schema\Blueprint;
 use Yajra\Oci8\Connectors\OracleConnector;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -134,10 +133,14 @@ class ProceduresAndFunctionsTest extends TestCase
 
         $procedureName = 'demo';
 
-        $connection->getSchemaBuilder()->dropIfExists('demotable');
-        $connection->getSchemaBuilder()->create('demotable', function (Blueprint $table) {
-            $table->string('name');
-        });
+        try {
+            $command = 'DROP TABLE demotable';
+            $connection->getPdo()->exec($command);
+        } catch (\Exception $e) {
+            // table does not exists.
+        }
+        $command = 'CREATE TABLE demotable(name varchar2(100))';
+        $connection->getPdo()->exec($command);
 
         $rows = [
             [
@@ -152,10 +155,10 @@ class ProceduresAndFunctionsTest extends TestCase
         $command = '
             CREATE OR REPLACE PROCEDURE demo(p1 OUT SYS_REFCURSOR) AS
             BEGIN
-                OPEN p1 
-                FOR 
+                OPEN p1
+                FOR
                 SELECT name
-                FROM demotable; 
+                FROM demotable;
             END;
         ';
 
@@ -189,9 +192,6 @@ class ProceduresAndFunctionsTest extends TestCase
 
         $result = $connection->executeFunction($procedureName, $bindings);
 
-        // we need to cast here b/c oracle returns strings
-        $result = (int) $result;
-
-        $this->assertSame($first + 2, $result);
+        $this->assertSame($first + 2, (int) $result);
     }
 }

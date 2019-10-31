@@ -449,7 +449,7 @@ class Oci8Connection extends Connection
      * @param  \Exception  $e
      * @return bool
      */
-    public function causedByLostConnection(Exception $e)
+    protected function causedByLostConnection(Exception $e)
     {
         if (parent::causedByLostConnection($e)) {
             return true;

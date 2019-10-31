@@ -294,6 +294,25 @@ class OracleGrammar extends Grammar
     }
 
     /**
+     * Compile the SQL needed to drop all tables.
+     *
+     * @return string
+     */
+    public function compileDropAllTables()
+    {
+        return 'BEGIN
+            FOR c IN (SELECT table_name FROM user_tables) LOOP
+            EXECUTE IMMEDIATE (\'DROP TABLE "\' || c.table_name || \'" CASCADE CONSTRAINTS\');
+            END LOOP;
+
+            FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
+            EXECUTE IMMEDIATE (\'DROP SEQUENCE \' || s.sequence_name);
+            END LOOP;
+
+            END;';
+    }
+
+    /**
      * Compile a drop table (if exists) command.
      *
      * @param  \Illuminate\Database\Schema\Blueprint $blueprint
@@ -726,7 +745,8 @@ class OracleGrammar extends Grammar
         // check if field is declared as enum
         $enum = '';
         if (count((array) $column->allowed)) {
-            $enum = " check ({$column->name} in ('" . implode("', '", $column->allowed) . "'))";
+            $columnName = $this->wrapValue($column->name);
+            $enum       = " check ({$columnName} in ('" . implode("', '", $column->allowed) . "'))";
         }
 
         $null = $column->nullable ? ' null' : ' not null';
